@@ -1,0 +1,6 @@
+{
+  "name": "ZawqList",
+  "description": "ZawqList - مكتبة المنتجات الشخصية واكتشاف التوصيات ومقارنة الأسعار في مصر للمنتجات والعطور وواقيات الشمس",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

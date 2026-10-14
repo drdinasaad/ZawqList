@@ -1,0 +1,118 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == "dinasaad808@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isOwner(ownerUid) {
+      return isSignedIn() && request.auth.uid == ownerUid;
+    }
+
+    // Catalog Collections (Public read for published records, Admin write)
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(categoryId);
+    }
+
+    match /companies/{companyId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(companyId);
+    }
+
+    match /brands/{brandId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(brandId);
+    }
+
+    match /products/{productId} {
+      allow get: if resource.data.status == 'published' || isAdmin();
+      allow list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(productId);
+    }
+
+    match /retailers/{retailerId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(retailerId);
+    }
+
+    match /offers/{offerId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(offerId);
+    }
+
+    // User Libraries
+    match /user_libraries/{libraryId} {
+      // Public visitors can only view public libraries; owner & admin can read private libraries
+      allow get: if resource.data.visibility == 'public' || isOwner(resource.data.owner_uid) || isAdmin();
+      allow list: if resource.data.visibility == 'public' || (isSignedIn() && resource.data.owner_uid == request.auth.uid);
+
+      allow create: if isSignedIn() && isValidId(libraryId) &&
+        request.resource.data.owner_uid == request.auth.uid &&
+        request.resource.data.title is string && request.resource.data.title.size() <= 150 &&
+        request.resource.data.visibility in ['public', 'private'];
+
+      allow update: if isSignedIn() && isOwner(resource.data.owner_uid) &&
+        request.resource.data.owner_uid == resource.data.owner_uid &&
+        request.resource.data.library_id == resource.data.library_id &&
+        request.resource.data.title is string && request.resource.data.title.size() <= 150 &&
+        request.resource.data.visibility in ['public', 'private'];
+
+      allow delete: if isSignedIn() && (isOwner(resource.data.owner_uid) || isAdmin());
+
+      // Nested items in user library
+      match /items/{itemId} {
+        allow get, list: if get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.visibility == 'public' ||
+          isOwner(get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.owner_uid) ||
+          isAdmin();
+
+        allow create: if isSignedIn() && isValidId(itemId) &&
+          isOwner(get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.owner_uid) &&
+          request.resource.data.library_id == libraryId;
+
+        allow update: if isSignedIn() &&
+          isOwner(get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.owner_uid) &&
+          request.resource.data.library_id == libraryId;
+
+        allow delete: if isSignedIn() &&
+          (isOwner(get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.owner_uid) || isAdmin());
+      }
+
+      // Nested custom shelves
+      match /shelves/{shelfId} {
+        allow get, list: if get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.visibility == 'public' ||
+          isOwner(get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.owner_uid) ||
+          isAdmin();
+
+        allow create, update, delete: if isSignedIn() && isValidId(shelfId) &&
+          isOwner(get(/databases/$(database)/documents/user_libraries/$(libraryId)).data.owner_uid);
+      }
+    }
+
+    // Analytics Events
+    match /analytics_events/{eventId} {
+      allow create: if isValidId(eventId) &&
+        request.resource.data.event_type in ['product_view', 'product_added_to_library', 'shelf_placement_changed', 'library_shared', 'search_submitted', 'price_offer_viewed'];
+      allow get, list: if isAdmin();
+      allow update, delete: if false;
+    }
+  }
+}

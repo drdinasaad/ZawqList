@@ -1,0 +1,227 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "Product category metadata supporting dynamic extension without code changes",
+      "type": "object",
+      "properties": {
+        "category_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "name_ar": { "type": "string", "maxLength": 100 },
+        "name_en": { "type": "string", "maxLength": 100 },
+        "slug": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "parent_category_id": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["active", "planned", "archived"] },
+        "sort_order": { "type": "number" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["category_id", "name_ar", "name_en", "slug", "status", "sort_order", "created_at", "updated_at"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "Company, brand owner or pharmaceutical manufacturer",
+      "type": "object",
+      "properties": {
+        "company_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "name_ar": { "type": "string", "maxLength": 150 },
+        "name_en": { "type": "string", "maxLength": 150 },
+        "website": { "type": "string", "maxLength": 300 },
+        "country": { "type": "string", "maxLength": 10 },
+        "verification_status": { "type": "string", "enum": ["verified", "pending", "unverified"] },
+        "source_url": { "type": "string", "maxLength": 300 },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["company_id", "name_ar", "name_en", "country", "verification_status", "created_at", "updated_at"]
+    },
+    "Brand": {
+      "title": "Brand",
+      "description": "Brand record linked to a company",
+      "type": "object",
+      "properties": {
+        "brand_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "company_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "name_ar": { "type": "string", "maxLength": 100 },
+        "name_en": { "type": "string", "maxLength": 100 },
+        "logo_url": { "type": "string", "maxLength": 500 },
+        "website": { "type": "string", "maxLength": 300 },
+        "verification_status": { "type": "string", "enum": ["verified", "pending", "unverified"] },
+        "source_url": { "type": "string", "maxLength": 300 },
+        "status": { "type": "string", "enum": ["active", "archived"] }
+      },
+      "required": ["brand_id", "company_id", "name_ar", "name_en", "verification_status", "status"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Product record in catalog",
+      "type": "object",
+      "properties": {
+        "product_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "primary_category_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "brand_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "name_ar": { "type": "string", "maxLength": 200 },
+        "name_en": { "type": "string", "maxLength": 200 },
+        "slug": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "variant_name": { "type": "string", "maxLength": 100 },
+        "image_url": { "type": "string", "maxLength": 600 },
+        "barcode": { "type": "string", "maxLength": 64 },
+        "official_product_url": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["draft", "published", "archived"] },
+        "verification_status": { "type": "string", "enum": ["verified", "pending", "unverified"] },
+        "source_url": { "type": "string", "maxLength": 500 },
+        "last_verified_at": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["product_id", "primary_category_id", "brand_id", "name_ar", "name_en", "slug", "status", "verification_status", "created_at", "updated_at"]
+    },
+    "Retailer": {
+      "title": "Retailer",
+      "description": "Egyptian retailer offering product prices",
+      "type": "object",
+      "properties": {
+        "retailer_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "name_ar": { "type": "string", "maxLength": 100 },
+        "name_en": { "type": "string", "maxLength": 100 },
+        "website": { "type": "string", "maxLength": 300 },
+        "country": { "type": "string", "maxLength": 10 },
+        "logo_url": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "data_source_method": { "type": "string", "maxLength": 100 },
+        "last_checked_at": { "type": "string" }
+      },
+      "required": ["retailer_id", "name_ar", "name_en", "country", "status", "data_source_method"]
+    },
+    "PriceOffer": {
+      "title": "PriceOffer",
+      "description": "Price observation with timestamp from retailer",
+      "type": "object",
+      "properties": {
+        "offer_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "product_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "variant_id": { "type": "string", "maxLength": 64 },
+        "retailer_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "seller_name": { "type": "string", "maxLength": 150 },
+        "price_amount": { "type": "number" },
+        "currency": { "type": "string", "enum": ["EGP"] },
+        "product_url": { "type": "string", "maxLength": 600 },
+        "availability": { "type": "string", "enum": ["in_stock", "low_stock", "out_of_stock"] },
+        "captured_at": { "type": "string" },
+        "valid_until": { "type": "string" },
+        "source_type": { "type": "string", "maxLength": 50 },
+        "verification_status": { "type": "string", "enum": ["verified", "unverified"] }
+      },
+      "required": ["offer_id", "product_id", "retailer_id", "price_amount", "currency", "availability", "captured_at", "verification_status"]
+    },
+    "UserLibrary": {
+      "title": "UserLibrary",
+      "description": "User personal collection with public or private visibility",
+      "type": "object",
+      "properties": {
+        "library_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "owner_uid": { "type": "string", "maxLength": 128 },
+        "owner_name": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "slug": { "type": "string", "maxLength": 100, "pattern": "^[a-z0-9_-]+$" },
+        "visibility": { "type": "string", "enum": ["public", "private"] },
+        "cover_image_url": { "type": "string", "maxLength": 500 },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["library_id", "owner_uid", "title", "slug", "visibility", "created_at", "updated_at"]
+    },
+    "LibraryItem": {
+      "title": "LibraryItem",
+      "description": "Item placed on a shelf within a library",
+      "type": "object",
+      "properties": {
+        "item_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "library_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "product_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "shelf_id": { "type": "string", "maxLength": 64 },
+        "personal_note": { "type": "string", "maxLength": 1000 },
+        "sort_order": { "type": "number" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["item_id", "library_id", "product_id", "shelf_id", "sort_order", "created_at", "updated_at"]
+    },
+    "CustomShelf": {
+      "title": "CustomShelf",
+      "description": "User custom shelf created within a library",
+      "type": "object",
+      "properties": {
+        "shelf_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "library_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "name": { "type": "string", "maxLength": 60 },
+        "color": { "type": "string", "maxLength": 20 },
+        "sort_order": { "type": "number" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["shelf_id", "library_id", "name", "color", "sort_order", "created_at", "updated_at"]
+    },
+    "AnalyticsEvent": {
+      "title": "AnalyticsEvent",
+      "description": "Recorded platform telemetry distinguishing unique users without PII",
+      "type": "object",
+      "properties": {
+        "event_id": { "type": "string", "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+        "timestamp": { "type": "string" },
+        "event_type": { "type": "string", "enum": ["product_view", "product_added_to_library", "shelf_placement_changed", "library_shared", "search_submitted", "price_offer_viewed"] },
+        "user_id": { "type": "string", "maxLength": 128 },
+        "product_id": { "type": "string", "maxLength": 64 },
+        "library_id": { "type": "string", "maxLength": 64 },
+        "shelf_id": { "type": "string", "maxLength": 64 },
+        "retailer_id": { "type": "string", "maxLength": 64 },
+        "search_query": { "type": "string", "maxLength": 200 },
+        "result_count": { "type": "number" }
+      },
+      "required": ["event_id", "timestamp", "event_type", "user_id"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Product categories catalog"
+    },
+    "/companies/{companyId}": {
+      "schema": "Company",
+      "description": "Product companies/manufacturers"
+    },
+    "/brands/{brandId}": {
+      "schema": "Brand",
+      "description": "Product brands"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Product catalog entries"
+    },
+    "/retailers/{retailerId}": {
+      "schema": "Retailer",
+      "description": "Egyptian retailers"
+    },
+    "/offers/{offerId}": {
+      "schema": "PriceOffer",
+      "description": "Price comparison records with timestamps"
+    },
+    "/user_libraries/{libraryId}": {
+      "schema": "UserLibrary",
+      "description": "User personal libraries"
+    },
+    "/user_libraries/{libraryId}/items/{itemId}": {
+      "schema": "LibraryItem",
+      "description": "Products placed on shelves inside a library"
+    },
+    "/user_libraries/{libraryId}/shelves/{shelfId}": {
+      "schema": "CustomShelf",
+      "description": "Custom shelves inside a library"
+    },
+    "/analytics_events/{eventId}": {
+      "schema": "AnalyticsEvent",
+      "description": "Aggregated analytics events"
+    }
+  }
+}
